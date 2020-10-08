@@ -52,7 +52,7 @@ class BookInstance(models.Model):
             default=uuid.uuid4,
             help_text="Unique ID for this particular book across whole library"
         )
-    book = models.ForeignKey(Book, on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey("Book", on_delete=models.SET_NULL, null=True)
     imprint = models.CharField(max_length=200)
     due_back = models.DateField(null=True, blank=True)
 
@@ -76,3 +76,19 @@ class BookInstance(models.Model):
 
     def __str__(self) -> str:
         return f"{self.id} ({self.book.title})"
+
+
+class Author(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    date_of_birth = models.DateField(null=True, blank=True)
+    date_of_death = models.DateField("Died", null=True, blank=True)
+
+    class Meta:
+        ordering = ['first_name', 'last_name']
+    
+    def get_absolute_url(self):
+        return reverse("author-detail", args=[str(self.id)])
+
+    def __str__(self) -> str:
+        return f"{self.first_name}, {self.last_name}"
