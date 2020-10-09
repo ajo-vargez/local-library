@@ -7,7 +7,7 @@ import uuid
 class Genre(models.Model):
     name = models.CharField(max_length=200, help_text="Enter a book genre (eg: Science Fiction)")
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String for representing the model object."""
 
         return self.name
