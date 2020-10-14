@@ -2,17 +2,47 @@ version: "3.8"
 
 services:
   db:
+    container_name: postgres
     image: postgres
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-  django:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    volumes: 
+      - pg_data:/var/lib/postgresql/data
+    ports: 
+      - "5433:5432"
+
+  backend:
+    container_name: django
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: python manage.py runserver 0.0.0.0:80
     volumes:
-      - .:/code
+      - .:/code:delegated
     ports:
-      - "8000:8000"
+      - "80:80"
     depends_on:
       - db
+    stdin_open: true
+    tty: true
+
+  frontend:
+    container_name: vue
+    ports: 
+      - "8080:8080"
+    build: 
+      context: .
+      dockerfile: ./library/Dockerfile
+    volumes: 
+      - ./library:/app:delegated
+      - /app/node_modules
+    environment: 
+      - NODE_ENV=development
+    command: npm run serve
+
+volumes:
+  # Prevents database from being erased from `docker-compose down`.
+  # Use `down -v` option to remove.
+  pg_data:
